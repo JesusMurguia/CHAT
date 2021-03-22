@@ -163,6 +163,7 @@ public class WebSockete {
     }
     
     
+    
     private void mensajeClientes(Mensaje mensaje, Session sesion){
         
         synchronized (clients) {
@@ -201,5 +202,4 @@ public class WebSockete {
                 }
         }
     }
-    
 }

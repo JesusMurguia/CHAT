@@ -30,6 +30,16 @@ and open the template in the editor.
                 txtMsjs.value += "\n"+"YO a "+resp+"(PRIVADO)"+txtMsj.value;
                 ws.send(json);
             }
+            
+            function mensajeEntidad(){
+                var txtNombre = document.getElementById("txtNombreAlumno");
+                var txtPromedio = document.getElementById("txtPromedioAlumno");
+                var jsonalumno='{"nombre":"'+txtNombre.value+'","promedio":"'+txtPromedio.value+'"}'
+                var json='{"id":"123","mensaje":"'+jsonalumno+'","tipoMensaje":"MENSAJE_ENTIDAD","username":"","destinatario":"@everyone"}';
+		//aqui se manda el mensaje de la caja de texto al websocket
+                //txtMsjs.value += "\n"+"YO a "+resp+"(PRIVADO)"+txtMsj.value;
+                ws.send(json);
+            }
 			//al cargarse la página se ejecuta esta función
             window.onload = function(){
                var txtMsjs = document.getElementById("txtMsjs");
