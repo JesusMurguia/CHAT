@@ -34,8 +34,18 @@ and open the template in the editor.
             function mensajeEntidad(){
                 var txtNombre = document.getElementById("txtNombreAlumno");
                 var txtPromedio = document.getElementById("txtPromedioAlumno");
-                var jsonalumno='{"nombre":"'+txtNombre.value+'","promedio":"'+txtPromedio.value+'"}'
-                var json='{"id":"123","mensaje":"'+jsonalumno+'","tipoMensaje":"MENSAJE_ENTIDAD","username":"","destinatario":"@everyone"}';
+                //var jsonalumno='{"nombre":"'+txtNombre.value+'","promedio":"'+txtPromedio.value+',"tipoMensaje":"MENSAJE_ENTIDAD"}'
+                var json='{"id":"123","mensaje":{"nombre":"'+txtNombre.value+'","promedio":"'+txtPromedio.value+'"},"tipoMensaje":"MENSAJE_ENTIDAD","username":"","destinatario":"@everyone"}';
+		//aqui se manda el mensaje de la caja de texto al websocket
+                //txtMsjs.value += "\n"+"YO a "+resp+"(PRIVADO)"+txtMsj.value;
+                ws.send(json);
+            }
+            function mensajeEntidadPrivada(){
+                var resp = window.prompt("Indica el usuario al que le vas a mandar el mensaje privado");
+                var txtNombre = document.getElementById("txtNombreAlumno");
+                var txtPromedio = document.getElementById("txtPromedioAlumno");
+                //var jsonalumno='{"nombre":"'+txtNombre.value+'","promedio":"'+txtPromedio.value+',"tipoMensaje":"MENSAJE_ENTIDAD"}'
+                var json='{"id":"123","mensaje":{"nombre":"'+txtNombre.value+'","promedio":"'+txtPromedio.value+'"},"tipoMensaje":"MENSAJE_ENTIDAD_PRIVADA","username":"","destinatario":"'+resp+'"}';
 		//aqui se manda el mensaje de la caja de texto al websocket
                 //txtMsjs.value += "\n"+"YO a "+resp+"(PRIVADO)"+txtMsj.value;
                 ws.send(json);
@@ -59,19 +69,41 @@ and open the template in the editor.
                     ws.send(json);
                     json='{"id":"123","mensaje":"'+resp+' se ha conectado","tipoMensaje":"MENSAJE_CLIENTES","username":"'+resp+'","destinatario":"@everyone"}';
                     ws.send(json);
-                  txtMsjs.value = "holis, "+resp;
+                  txtMsjs.value = "hola, "+resp;
                   var nombre =document.getElementById("cliente");
                   nombre.innerHTML=resp;
                   
                };
 				//se asigna y define la función a ejecutarse cada que llegue un mensaje desde el websocket
                ws.onmessage = function (evt) { 
-                  var received_msg = evt.data;
-                  var obj = JSON.parse(received_msg);
-                  console.log(obj.tipoMensaje)
+                  var obj = evt.data;
+                  try {
+                      obj = JSON.parse(obj);
+                  }catch(e){
+                      console.log(obj.tipoMensaje)
+                  }
                   if(obj.tipoMensaje==="MENSAJE_CLIENTES"){
                       var clientes = document.getElementById("clientes");
                   clientes.value =obj.mensaje;
+                  }else if(obj.tipoMensaje==="MENSAJE_ENTIDAD"){
+                      console.log("cocaina");
+                      var txtNombre = document.getElementById("txtNombreAlumno");
+                      var txtPromedio = document.getElementById("txtPromedioAlumno");
+                      console.log(obj.mensaje);
+                      obj=JSON.parse(obj.mensaje);
+                      console.log(obj.nombre);
+                      txtNombre.value=obj.nombre;
+                      txtPromedio.value=obj.promedio;
+                      
+                  }else if(obj.tipoMensaje==="MENSAJE_ENTIDAD_PRIVADA"){
+                      var txtNombre = document.getElementById("txtNombreAlumno");
+                      var txtPromedio = document.getElementById("txtPromedioAlumno");
+                      console.log(obj.mensaje);
+                      obj=JSON.parse(obj.mensaje);
+                      console.log(obj.nombre);
+                      txtNombre.value=obj.nombre;
+                      txtPromedio.value=obj.promedio;
+                      
                   }else{
                   var txtMsjs = document.getElementById("txtMsjs");
                   txtMsjs.value += "\n"+obj.mensaje;
@@ -82,6 +114,13 @@ and open the template in the editor.
                   
                   alert("Connection is closed..."); 
                };                
+            }
+            
+            function getType(p) {
+                if (Array.isArray(p)) return 'array';
+                else if (typeof p == 'string') return 'string';
+                else if (p != null && typeof p == 'object') return 'object';
+                else return 'other';
             }
         </script>
     </head>
@@ -102,6 +141,7 @@ and open the template in the editor.
         <input type="text" id="txtPromedioAlumno" placeholder="promedio"/>
         
         <button onclick="mensajeEntidad()">Enviar entidad</button>
+        <button onclick="mensajeEntidadPrivada()">Enviar entidad privada</button>
         <br/>
     </body>
 </html>

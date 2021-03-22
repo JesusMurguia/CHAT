@@ -62,10 +62,14 @@ public class WebSockete {
         
         String echoMsg="";
         System.out.println("Message from the client: " + message);
-        
+        Mensaje mensaje=new Mensaje();
         JSONObject json = new JSONObject(message);
-        System.out.println(json.getString("mensaje"));
-        Mensaje mensaje=new Mensaje(json.getString("username"), json.getString("id"), json.getString("mensaje"), json.getString("tipoMensaje"), json.getString("destinatario"));
+        //System.out.println(json.getString("mensaje"));
+        if(json.getString("tipoMensaje").equals("MENSAJE_ENTIDAD") || json.getString("tipoMensaje").equals("MENSAJE_ENTIDAD_PRIVADA")){
+            mensaje=new Mensaje(json.getString("username"), json.getString("id"), json.get("mensaje").toString(), json.getString("tipoMensaje"), json.getString("destinatario"));
+        }else{
+            mensaje=new Mensaje(json.getString("username"), json.getString("id"), json.getString("mensaje"), json.getString("tipoMensaje"), json.getString("destinatario"));
+        }
         JSONObject jsonObject = new JSONObject(mensaje);
         System.out.println(mensaje.toString());
         mensajeHandler(mensaje,sesion);
@@ -100,6 +104,9 @@ public class WebSockete {
                 break;
             case "MENSAJE_ENTIDAD":
             mensajeEntidad(mensaje,sesion);
+            break;
+            case "MENSAJE_ENTIDAD_PRIVADA":
+            mensajeEntidadPrivada(mensaje,sesion);
             break;
             default:
                 break;
@@ -187,15 +194,33 @@ public class WebSockete {
             for (Session client : clients) {
                     try {
                             JSONObject json = new JSONObject(mensaje);
-                            JSONObject  msg= new JSONObject(json.toString());
-                            
-                            Alumno a=new Alumno(msg.getString("nombre"),msg.getString("promedio"));
-                            
-                            JSONObject  alumno= new JSONObject(a);
-                            mensaje.setMensaje(alumno.toString());
-                            
+                            String msg=json.get("mensaje").toString();
+                            mensaje.setMensaje(msg);
                             JSONObject  m= new JSONObject(mensaje);
-                            client.getBasicRemote().sendText(m.toString());
+                            System.out.println(m.toString());
+                            System.out.println(m.toString().replaceAll("\\\\", ""));
+                            client.getBasicRemote().sendText(m.toString().replace("\\\\", ""));
+                    } catch (IOException ex) {
+                        System.out.println(ex);
+                    }
+                }
+        }
+    }
+    private void mensajeEntidadPrivada(Mensaje mensaje, Session sesion){
+        
+        synchronized (clients) {
+            // Se itera sobre la sesiones (clientes) guardados para transmitir el mensaje
+            for (Session client : clients) {
+                    try {
+                        if (client.getUserProperties().get("username").equals(mensaje.getDestinatario())) {
+                            JSONObject json = new JSONObject(mensaje);
+                            String msg=json.get("mensaje").toString();
+                            mensaje.setMensaje(msg);
+                            JSONObject  m= new JSONObject(mensaje);
+                            System.out.println(m.toString());
+                            System.out.println(m.toString().replaceAll("\\\\", ""));
+                            client.getBasicRemote().sendText(m.toString().replace("\\\\", ""));
+                        }
                     } catch (IOException ex) {
                         System.out.println(ex);
                     }

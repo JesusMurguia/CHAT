@@ -16,6 +16,9 @@ public class Mensaje {
     String tipoMensaje;
     String destinatario;
 
+    public Mensaje() {
+    }
+
     public Mensaje(String username, String id, String mensaje, String tipoMensaje, String destinatario) {
         this.username = username;
         this.id = id;
