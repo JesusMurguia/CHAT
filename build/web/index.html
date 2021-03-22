@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script>
+            var ws = null;
+			//funcion que maneja el click del botón enviar
+            function click(){
+                var txtMsjs = document.getElementById("txtMsjs");
+                var txtMsj = document.getElementById("txtMsj");
+                var nombre =document.getElementById("cliente");
+                txtMsjs.value += "\n"+"YO: "+txtMsj.value;
+                var json='{"id":"123","mensaje":"'+cliente.innerHTML+': '+txtMsj.value+'","tipoMensaje":"MENSAJE_NORMAL","username":"","destinatario":"@everyone"}';
+				//aqui se manda el mensaje de la caja de texto al websocket
+                ws.send(json);
+            }
+            
+            function mensajePrivado(){
+                var resp = window.prompt("Indica el usuario al que le vas a mandar el mensaje privado");
+                var txtMsj = document.getElementById("txtMsj");
+                var json='{"id":"123","mensaje":"'+cliente.innerHTML+': '+txtMsj.value+'","tipoMensaje":"MENSAJE_PRIVADO","username":"","destinatario":"'+resp+'"}';
+		//aqui se manda el mensaje de la caja de texto al websocket
+                txtMsjs.value += "\n"+"YO a "+resp+"(PRIVADO)"+txtMsj.value;
+                ws.send(json);
+            }
+			//al cargarse la página se ejecuta esta función
+            window.onload = function(){
+               var txtMsjs = document.getElementById("txtMsjs");
+               var btn = document.getElementById("btn");
+               // se asigna el evento del click
+			   btn.onclick = click;
+			   //hace la conexión al web socket
+               ws = new WebSocket
+                ("ws://localhost:8080/EjemploWS/websocketendpoint");
+                
+                
+				//la función que se ejecuta al abrirse la conexión
+               ws.onopen = function() {                        
+                   var resp = window.prompt("Ingresa tu nombre de usuario");
+                  //se envía este mensaje al websocket
+                  var json='{"id":"123","mensaje":"'+resp+' se ha conectado","tipoMensaje":"MENSAJE_LOGIN","username":"'+resp+'","destinatario":"@everyone"}';
+                    ws.send(json);
+                    json='{"id":"123","mensaje":"'+resp+' se ha conectado","tipoMensaje":"MENSAJE_CLIENTES","username":"'+resp+'","destinatario":"@everyone"}';
+                    ws.send(json);
+                  txtMsjs.value = "holis, "+resp;
+                  var nombre =document.getElementById("cliente");
+                  nombre.innerHTML=resp;
+                  
+               };
+				//se asigna y define la función a ejecutarse cada que llegue un mensaje desde el websocket
+               ws.onmessage = function (evt) { 
+                  var received_msg = evt.data;
+                  var obj = JSON.parse(received_msg);
+                  console.log(obj.tipoMensaje)
+                  if(obj.tipoMensaje==="MENSAJE_CLIENTES"){
+                      var clientes = document.getElementById("clientes");
+                  clientes.value =obj.mensaje;
+                  }else{
+                  var txtMsjs = document.getElementById("txtMsjs");
+                  txtMsjs.value += "\n"+obj.mensaje;
+              }
+               };
+				
+               ws.onclose = function() { 
+                  
+                  alert("Connection is closed..."); 
+               };                
+            }
+        </script>
+    </head>
+    <body>
+        <h1 id="cliente"></h1>
+        Mensaje: <input type="text" id="txtMsj" />
+        <input type="button" value="Enviar" id="btn"/>
+        <button onclick="mensajePrivado()">Enviar mensaje privado</button>
+        <br/>        
+        Mensajes:
+        <textarea readonly id="txtMsjs"></textarea>   
+        Usuarios conectados:
+        <textarea readonly id="clientes"></textarea>  
+    </body>
+</html>
