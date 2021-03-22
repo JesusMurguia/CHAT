@@ -69,7 +69,8 @@ and open the template in the editor.
                };
 				
                ws.onclose = function() { 
-                  
+                  json='{"id":"123","mensaje":"","tipoMensaje":"MENSAJE_CLIENTES","username":"","destinatario":"@everyone"}';
+                    ws.send(json);
                   alert("Connection is closed..."); 
                };                
             }
@@ -85,5 +86,13 @@ and open the template in the editor.
         <textarea readonly id="txtMsjs"></textarea>   
         Usuarios conectados:
         <textarea readonly id="clientes"></textarea>  
+        <br><br><br><br>
+        Entidad alumno: 
+        <br>
+        <input type="text" id="txtNombreAlumno" placeholder="nombre" />
+        <input type="text" id="txtPromedioAlumno" placeholder="promedio"/>
+        
+        <button onclick="mensajeEntidad()">Enviar entidad</button>
+        <br/>
     </body>
 </html>
