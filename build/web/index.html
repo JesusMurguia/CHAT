@@ -38,7 +38,7 @@ and open the template in the editor.
 			   btn.onclick = click;
 			   //hace la conexión al web socket
                ws = new WebSocket
-                ("ws://localhost:8080/EjemploWS/websocketendpoint");
+                ("ws://localhost:8080/CHAT/websocketendpoint");
                 
                 
 				//la función que se ejecuta al abrirse la conexión
@@ -69,8 +69,7 @@ and open the template in the editor.
                };
 				
                ws.onclose = function() { 
-                  json='{"id":"123","mensaje":"","tipoMensaje":"MENSAJE_CLIENTES","username":"","destinatario":"@everyone"}';
-                    ws.send(json);
+                  
                   alert("Connection is closed..."); 
                };                
             }

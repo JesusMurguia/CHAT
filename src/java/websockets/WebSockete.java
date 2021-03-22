@@ -5,6 +5,7 @@
  */
 package websockets;
 
+import Dominio.Alumno;
 import Dominio.Mensaje;
 import Dominio.TipoMensaje;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class WebSockete {
         System.out.println("Open Connection ...");
         //al conectarse un cliente se abre el websocket y se guarda su sesión.
         clients.add(sesion);
-        //Mensaje mensaje=new Mensaje("", "", "", "MENSAJE_CLIENTES", "");
+        
         //mensajeHandler(mensaje, sesion);
     }
 
@@ -52,6 +53,8 @@ public class WebSockete {
         System.out.println("Close Connection ...");
         //al cerrarse la conexión por parte del cliente se elimina su sesión en el servidor
         clients.remove(sesion);
+        Mensaje mensaje=new Mensaje("", "", "", "MENSAJE_CLIENTES", "");
+        mensajeClientes(mensaje, sesion);
     }
 
     @OnMessage
@@ -95,6 +98,9 @@ public class WebSockete {
             case "MENSAJE_CLIENTES":
                 mensajeClientes(mensaje,sesion);
                 break;
+            case "MENSAJE_ENTIDAD":
+            mensajeEntidad(mensaje,sesion);
+            break;
             default:
                 break;
         }
@@ -172,4 +178,28 @@ public class WebSockete {
                 }
         }
     }
+    
+    private void mensajeEntidad(Mensaje mensaje, Session sesion){
+        
+        synchronized (clients) {
+            // Se itera sobre la sesiones (clientes) guardados para transmitir el mensaje
+            for (Session client : clients) {
+                    try {
+                            JSONObject json = new JSONObject(mensaje);
+                            JSONObject  msg= new JSONObject(json.toString());
+                            
+                            Alumno a=new Alumno(msg.getString("nombre"),msg.getString("promedio"));
+                            
+                            JSONObject  alumno= new JSONObject(a);
+                            mensaje.setMensaje(alumno.toString());
+                            
+                            JSONObject  m= new JSONObject(mensaje);
+                            client.getBasicRemote().sendText(m.toString());
+                    } catch (IOException ex) {
+                        System.out.println(ex);
+                    }
+                }
+        }
+    }
+    
 }
