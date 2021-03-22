@@ -157,7 +157,24 @@ public class WebSockete {
     }
     
     
+    
     private void mensajeClientes(Mensaje mensaje, Session sesion){
+        
+        synchronized (clients) {
+            // Se itera sobre la sesiones (clientes) guardados para transmitir el mensaje
+            for (Session client : clients) {
+                    try {
+                            mensaje.setMensaje(getClientList().toString());
+                            JSONObject jsonObject = new JSONObject(mensaje);
+                            client.getBasicRemote().sendText(jsonObject.toString());
+                    } catch (IOException ex) {
+                        System.out.println(ex);
+                    }
+                }
+        }
+    }
+    
+    private void mensajeEntidad(Mensaje mensaje, Session sesion){
         
         synchronized (clients) {
             // Se itera sobre la sesiones (clientes) guardados para transmitir el mensaje
